@@ -1,6 +1,7 @@
 from pynput.keyboard import Key, Listener
 from scraper import Scraper
 
+# will by default work with MSD Manual. Can pass different arguments for different websites
 scraper = Scraper(
     base_url="https://www.msdmanuals.com",
     first_url="professional/psychiatric-disorders/mood-disorders/depressive-disorders",

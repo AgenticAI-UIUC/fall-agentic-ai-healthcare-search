@@ -12,7 +12,12 @@ def check_url(func):
     return wrapped
 
 class ContentRetriever:
-    def __init__(self, base_url: str, text_classifer: PageClassifier = None):
+    def __init__(self, 
+                 base_url: str, 
+                 text_classifer: PageClassifier = None,
+                 content_tags: str = "p",
+                 title_tags: str = "h1",
+                 cookie_close_id: str = "onetrust-reject-all-handler") -> None:
         options = webdriver.FirefoxOptions()
         self.driver = webdriver.Firefox(options=options)
 
@@ -21,9 +26,13 @@ class ContentRetriever:
         self.current_url = ""
         self.base_url = base_url
 
+        self.content_tags = content_tags
+        self.title_tags = title_tags
+        self.cookie_close_id = cookie_close_id
+
     @check_url
-    def check_text(self, up_to: int = 20) -> bool:
-        elems = self.driver.find_elements(value='''p''',by=By.TAG_NAME)
+    def check_text(self,up_to: int = 20) -> bool:
+        elems = self.driver.find_elements(value=self.content_tags,by=By.TAG_NAME)
 
         text = ''''''
         for elem in elems[:min(up_to,len(elems))]:
@@ -32,10 +41,12 @@ class ContentRetriever:
         return self.text_classifier.page_fits(text)
     
     # will only work for the MSD website (this should be customizable)
+    @check_url
     def get_title(self) -> str:
-        elems = self.driver.find_elements(value='''h1''',by=By.TAG_NAME)
-
-        if not len(elems):return "No title found"
+        elems = self.driver.find_elements(value=self.title_tag,by=By.TAG_NAME)
+        
+        if not len(elems):
+            return "No title found"
 
         text = elems[0].text
 
@@ -60,15 +71,14 @@ class ContentRetriever:
     
     @check_url
     def respond_to_cookie_request(self) -> None:
-        elems = self.driver.find_elements(value='''onetrust-reject-all-handler''',by=By.ID)
+        elems = self.driver.find_elements(value=self.cookie_close_id,by=By.ID)
         if not len(elems): return
         elem = elems[0]
         elem.click()
 
     @check_url
-    def retrieve_all_relevant_information(self) -> str:
-        #this is the basic function, but idk if i should add checks
-        elems = self.driver.find_elements(value='''p''',by=By.TAG_NAME)
+    def check_text(self) -> bool:
+        elems = self.driver.find_elements(value=self.content_tags,by=By.TAG_NAME)
 
         text = ''''''
         for elem in elems:

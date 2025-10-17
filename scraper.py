@@ -10,7 +10,11 @@ class Scraper:
                  first_url: str = "",
                  save_every: int = 50,
                  source: str = "unspecified",
-                 page_sort: str = ["related to mental disorders","unrelated to mental disorders"]):
+                 content_tags: str = "p",
+                 title_tags: str = "h1",
+                 cookie_close_id: str = "onetrust-reject-all-handler",
+                 page_sort: str = ["related to mental disorders","unrelated to mental disorders"]
+                 ):
         
         self.to_visit = set()
         self.to_visit.add(first_url if first_url else base_url)
@@ -20,12 +24,17 @@ class Scraper:
         self.base_url = base_url
         self.base_website = source
         self.output_dir = output_dir if output_dir else os.path.dirname(os.path.abspath(__file__))
-        
+
         self.stop = False
 
-
         self.page_classifier = PageClassifier(page_sort)
-        self.content_retriever = ContentRetriever(self.base_url, self.page_classifier)
+        self.content_retriever = ContentRetriever(
+            base_url=self.base_url, 
+            text_classifer=self.page_classifier, 
+            content_tags=content_tags, 
+            title_tags=title_tags,
+            cookie_close_id=cookie_close_id
+            )
 
         self.template = {
             "to_visit":[],
